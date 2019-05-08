@@ -326,18 +326,19 @@ class SharedHelper implements \TYPO3\CMS\Core\SingletonInterface
     /**
      * Returns an array with names of content columns for the given gridelement
      *
+     * We try to get the columns from PageTs. If this fails, we try to get them from Ts.
+     *
      * @param string|int $geKey
      * @return array
      */
     public function getGeContentCols($geKey)
     {
-        if ($geKey === (int)$geKey) {
-            $geRecord = $this->getGridElement($geKey);
-            return $this->getContentColsFromTs($geRecord['config']);
-        } else {
-            $geRecord = $this->getGridElementFromTs($geKey);
+        $geRecord = $this->getGridElementFromTs($geKey);
+        if ($geRecord) {
             return $this->getContentColsFromPageTs($geRecord);
         }
+        $geRecord = $this->getGridElement((int)$geKey);
+        return $this->getContentColsFromTs($geRecord['config']);
     }
 
     /**
@@ -874,7 +875,7 @@ class SharedHelper implements \TYPO3\CMS\Core\SingletonInterface
     /**
      * Returns an array with names of content columns for the given TypoScript
      *
-     * @param string $typoScript
+     * @param array $typoScript
      * @return array
      */
     private function getContentColsFromPageTs($typoScript)
