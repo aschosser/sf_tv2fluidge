@@ -1,6 +1,10 @@
 TemplaVoila migration to Fluidtemplate and Grid Element
 =======================================================
 
+This fork of https://github.com/derhansen/sf_tv2fluidge adds compatibility with TYPO3 v8.
+
+---
+
 ## What is it?
 
 A TYPO3 Extension with tools that can be helpful when migrating an existing TYPO3 website
