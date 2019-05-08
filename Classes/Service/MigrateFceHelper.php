@@ -1,4 +1,5 @@
 <?php
+namespace Hansen\SfTv2fluidge\Service;
 
 /***************************************************************
  *  Copyright notice
@@ -26,208 +27,213 @@
 /**
  * Helper class for handling TV FCE to Grid Element content migration
  */
-class Tx_SfTv2fluidge_Service_MigrateFceHelper implements t3lib_Singleton {
+class MigrateFceHelper implements \TYPO3\CMS\Core\SingletonInterface {
 
-	/**
-	 * @var Tx_SfTv2fluidge_Service_SharedHelper
-	 */
-	protected $sharedHelper;
+    /**
+     * @var \Hansen\SfTv2fluidge\Service\SharedHelper
+     * @inject
+     */
+    protected $sharedHelper;
 
-	/**
-	 * @var t3lib_refindex
-	 */
-	protected $refIndex;
+    /**
+     * @var \TYPO3\CMS\Core\Database\ReferenceIndex
+     * @inject
+     */
+    protected $refIndex;
 
-	/**
-	 * DI for shared helper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper
-	 * @return void
-	 */
-	public function injectSharedHelper(Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper) {
-		$this->sharedHelper = $sharedHelper;
-	}
+    /**
+     * Returns an array of all TemplaVoila flexible content elements stored as file
+     *
+     * @return array
+     */
+    public function getAllFileFce()
+    {
+        $extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['templavoilaplus']);
+        \Ppi\TemplaVoilaPlus\Domain\Repository\DataStructureRepository::getStaticDatastructureConfiguration();
+        $staticDsFiles = array();
+        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoilaplus']['staticDataStructures'] as $staticDataStructure) {
+            if ($staticDataStructure['scope'] == \Ppi\TemplaVoilaPlus\Domain\Model\DataStructure::SCOPE_FCE) {
+                $staticDsFiles[] = $staticDataStructure['path'];
+            }
+        }
+        $quotedStaticDsFiles = $GLOBALS['TYPO3_DB']->fullQuoteArray($staticDsFiles, 'tx_templavoilaplus_tmplobj');
 
-	/**
-	 * DI for t3lib_refindex
-	 *
-	 * @param t3lib_refindex t3lib_refindex
-	 * @return void
-	 */
-	public function injectRefIndex(t3lib_refindex $refIndex) {
-		$this->refIndex = $refIndex;
-	}
+        $fields = 'tx_templavoilaplus_tmplobj.uid, tx_templavoilaplus_tmplobj.title';
+        $table = 'tx_templavoilaplus_tmplobj';
+        $where = 'tx_templavoilaplus_tmplobj.datastructure IN(' . implode(',', $quotedStaticDsFiles) . ')
+			AND tx_templavoilaplus_tmplobj.deleted=0';
 
-	/**
-	 * Returns an array of all TemplaVoila flexible content elements stored as file
-	 *
-	 * @return array
-	 */
-	public function getAllFileFce() {
-		$extConf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['templavoila']);
-		tx_templavoila_staticds_tools::readStaticDsFilesIntoArray($extConf);
-		$staticDsFiles = array();
-		foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templavoila']['staticDataStructures'] as $staticDataStructure) {
-			if ($staticDataStructure['scope'] == tx_templavoila_datastructure::SCOPE_FCE) {
-				$staticDsFiles[] = $staticDataStructure['path'];
-			}
-		}
-		$quotedStaticDsFiles = $GLOBALS['TYPO3_DB']->fullQuoteArray($staticDsFiles, 'tx_templavoila_tmplobj');
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows($fields, $table, $where, '', '', '');
 
-		$fields = 'tx_templavoila_tmplobj.uid, tx_templavoila_tmplobj.title';
-		$table = 'tx_templavoila_tmplobj';
-		$where = 'tx_templavoila_tmplobj.datastructure IN(' . implode(',', $quotedStaticDsFiles) . ')
-			AND tx_templavoila_tmplobj.deleted=0';
+        $fces = array();
+        foreach ($res as $fce) {
+            $fces[$fce['uid']] = $fce['title'];
+        }
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows($fields, $table, $where, '', '', '');
+        return $fces;
+    }
 
-		$fces = array();
-		foreach($res as $fce) {
-			$fces[$fce['uid']] = $fce['title'];
-		}
+    /**
+     * Returns an array of all TemplaVoila flexible content elements stored in database
+     *
+     * @return array
+     */
+    public function getAllDbFce()
+    {
+        $fields = 'tx_templavoilaplus_tmplobj.uid, tx_templavoilaplus_tmplobj.title';
+        $table = 'tx_templavoilaplus_datastructure, tx_templavoilaplus_tmplobj';
+        $where = 'tx_templavoilaplus_datastructure.scope=2 AND tx_templavoilaplus_datastructure.uid = tx_templavoilaplus_tmplobj.datastructure
+			AND tx_templavoilaplus_datastructure.deleted=0 AND tx_templavoilaplus_tmplobj.deleted=0';
 
-		return $fces;
-	}
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows($fields, $table, $where, '', '', '');
 
-	/**
-	 * Returns an array of all TemplaVoila flexible content elements stored in database
-	 *
-	 * @return array
-	 */
-	public function getAllDbFce() {
-		$fields = 'tx_templavoila_tmplobj.uid, tx_templavoila_tmplobj.title';
-		$table = 'tx_templavoila_datastructure, tx_templavoila_tmplobj';
-		$where = 'tx_templavoila_datastructure.scope=2 AND tx_templavoila_datastructure.uid = tx_templavoila_tmplobj.datastructure
-			AND tx_templavoila_datastructure.deleted=0 AND tx_templavoila_tmplobj.deleted=0';
+        $fces = array();
+        foreach ($res as $fce) {
+            $fces[$fce['uid']] = $fce['title'];
+        }
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows($fields, $table, $where, '', '', '');
+        return $fces;
+    }
 
-		$fces = array();
-		foreach($res as $fce) {
-			$fces[$fce['uid']] = $fce['title'];
-		}
 
-		return $fces;
-	}
 
-	/**
-	 * Returns an array of all Grid Elements
-	 *
-	 * @return array
-	 */
-	public function getAllGe() {
-		/* Select all, because field "alias" is not available in older versions of GE */
-		$fields = '*';
-		$table = 'tx_gridelements_backend_layout';
-		$where = 'deleted=0';
+    /**
+     * Returns an array of all Grid Elements
+     *
+     * @return array
+     */
+    public function getAllGe()
+    {
+        ### DATABASE
+        /* Select all, because field "alias" is not available in older versions of GE */
+        $fields = '*';
+        $table = 'tx_gridelements_backend_layout';
+        $where = 'deleted=0';
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows($fields, $table, $where, '', '', '');
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows($fields, $table, $where, '', '', '');
 
-		$gridElements = array();
-		foreach($res as $ge) {
-			$geKey = $ge['uid'];
-			if (!empty($ge['alias'])) {
-				$geKey = $ge['alias'];
-			}
+        $gridElements = array();
+        foreach ($res as $ge) {
+            $geKey = $ge['uid'];
+            if (!empty($ge['alias'])) {
+                $geKey = $ge['alias'];
+            }
+            $gridElements[$geKey] = $ge['title'];
+        }
 
-			$gridElements[$geKey] = $ge['title'];
-		}
+        ### PAGETSCONFIG
+        $startRootPage = $this->sharedHelper->getConversionRootPid();
+        $pageTSConfig = \TYPO3\CMS\Backend\Utility\BackendUtility::getModTSconfig(
+            $startRootPage,
+            'tx_gridelements.setup'
+        );
+        foreach ($pageTSConfig['properties'] as $geKey => $ge) {
+            $geKey = str_replace('.', '', $geKey);
+            $gridElements[$geKey] = $ge['title'];
+        }
+        return $gridElements;
+    }
 
-		return $gridElements;
-	}
+    /**
+     * Returns the tt_content record by uid
+     *
+     * @param int $uid
+     * @return mixed
+     */
+    public function getContentElementByUid($uid)
+    {
+        $fields = '*';
+        $table = 'tt_content';
+        $where = 'uid='  . intval($uid);
 
-	/**
-	 * Returns the tt_content record by uid
-	 *
-	 * @param int $uid
-	 * @return mixed
-	 */
-	public function getContentElementByUid($uid) {
-		$fields = '*';
-		$table = 'tt_content';
-		$where = 'uid='  . intval($uid);
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow($fields, $table, $where, '', '', '');
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow($fields, $table, $where, '', '', '');
+        return $res;
+    }
 
-		return $res;
-	}
-
-	/**
-	 * Returns all tt_content elements which contains a TemplaVoila FCE with the given uid
-	 *
-	 * @param int $uidFce
+    /**
+     * Returns all tt_content elements which contains a TemplaVoila FCE with the given uid
+     *
+     * @param int $uidFce
      * @param array $pageUids
-	 * @return mixed
-	 */
-	public function getContentElementsByFce($uidFce, $pageUids) {
-		$fields = '*';
-		$table = 'tt_content';
-		$where = 'CType = "templavoila_pi1" AND tx_templavoila_to=' . intval($uidFce) .
+     * @return mixed
+     */
+    public function getContentElementsByFce($uidFce, $pageUids)
+    {
+        $fields = '*';
+        $table = 'tt_content';
+        $where = 'CType = "templavoilaplus_pi1" AND tx_templavoilaplus_to=' . intval($uidFce) .
             ' AND pid IN (' . implode(',', $pageUids) . ')' .
-            t3lib_BEfunc::deleteClause('tt_content');
+            \TYPO3\CMS\Backend\Utility\BackendUtility::deleteClause('tt_content');
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows($fields, $table, $where, '', '', '');
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows($fields, $table, $where, '', '', '');
 
-		return $res;
-	}
+        return $res;
+    }
 
-	/**
-	 * Migrated the content from a TemplaVoila FCE to the given Grid Element
-	 *
-	 * @param array $contentElement
-	 * @param string|int $geKey
-	 * @return void
-	 */
-	public function migrateFceFlexformContentToGe($contentElement, $geKey) {
-		$tvTemplateUid = (int)$contentElement['tx_templavoila_to'];
-		$flexform = $this->sharedHelper->cleanFlexform($contentElement['tx_templavoila_flex'], $tvTemplateUid, false);
-		$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tt_content', 'uid=' . intval($contentElement['uid']),
-			array(
-				'CType' => 'gridelements_pi1',
-				'pi_flexform' => $flexform,
-				'tx_gridelements_backend_layout' => $geKey
-			)
-		);
-	}
+    /**
+     * Migrated the content from a TemplaVoila FCE to the given Grid Element
+     *
+     * @param array $contentElement
+     * @param string|int $geKey
+     * @return void
+     */
+    public function migrateFceFlexformContentToGe($contentElement, $geKey)
+    {
+        $tvTemplateUid = (int)$contentElement['tx_templavoilaplus_to'];
+        $flexform = $this->sharedHelper->cleanFlexform($contentElement['tx_templavoilaplus_flex'], $tvTemplateUid, false);
+        $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+            'tt_content',
+            'uid=' . intval($contentElement['uid']),
+            array(
+                'CType' => 'gridelements_pi1',
+                'pi_flexform' => $flexform,
+                'tx_gridelements_backend_layout' => $geKey
+            )
+        );
+    }
 
-	/**
-	 * Marks the TemplaVoila FCE with the given uid as deleted
-	 *
-	 * @param int $uidFce
-	 * @return void
-	 */
-	public function markFceDeleted($uidFce) {
-		$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tx_templavoila_tmplobj', 'uid=' . intval($uidFce),
-			array('deleted' => 1)
-		);
-	}
+    /**
+     * Marks the TemplaVoila FCE with the given uid as deleted
+     *
+     * @param int $uidFce
+     * @return void
+     */
+    public function markFceDeleted($uidFce)
+    {
+        $GLOBALS['TYPO3_DB']->exec_UPDATEquery(
+            'tx_templavoilaplus_tmplobj',
+            'uid=' . intval($uidFce),
+            array('deleted' => 1)
+        );
+    }
 
-	/**
-	 * Migrates all content elements for the FCE with the given uid to the selected column positions
-	 *
-	 * @param array $contentElement
-	 * @param array $formdata
-	 * @return int Number of Content elements updated
-	 */
-	public function migrateContentElementsForFce($contentElement, $formdata) {
-		$fieldMapping = $this->sharedHelper->getFieldMappingArray($formdata, 'tv_col_', 'ge_col_');
-		$tvContentArray = $this->sharedHelper->getTvContentArrayForContent($contentElement['uid']);
-		$translationParentUid = (int)$contentElement['l18n_parent'];
-		$sysLanguageUid = (int)$contentElement['sys_language_uid'];
-		$pageUid = (int)$contentElement['pid'];
+    /**
+     * Migrates all content elements for the FCE with the given uid to the selected column positions
+     *
+     * @param array $contentElement
+     * @param array $formdata
+     * @return int Number of Content elements updated
+     */
+    public function migrateContentElementsForFce($contentElement, $formdata)
+    {
+        $fieldMapping = $this->sharedHelper->getFieldMappingArray($formdata, 'tv_col_', 'ge_col_');
+        $tvContentArray = $this->sharedHelper->getTvContentArrayForContent($contentElement['uid']);
+        $translationParentUid = (int)$contentElement['l18n_parent'];
+        $sysLanguageUid = (int)$contentElement['sys_language_uid'];
+        $pageUid = (int)$contentElement['pid'];
 
-		$count = 0;
-		$sorting = 0;
+        $count = 0;
+        $sorting = 0;
 
         // Respect language
         foreach ($tvContentArray as $lang => $fields) {
-
             foreach ($fields as $key => $contentUidString) {
                 if (array_key_exists($key, $fieldMapping) && $contentUidString != '') {
                     $contentUids = explode(',', $contentUidString);
                     foreach ($contentUids as $contentUid) {
                         $contentUid = (int)$contentUid;
-                        $myContentElement = NULL;
+                        $myContentElement = null;
                         $myContentElement = $this->sharedHelper->getContentElement($contentUid);
                         $containerUid = (int)$contentElement['uid'];
                         if (($translationParentUid > 0) && ($sysLanguageUid > 0)) {
@@ -261,8 +267,6 @@ class Tx_SfTv2fluidge_Service_MigrateFceHelper implements t3lib_Singleton {
             }
         }
 
-		return $count;
-	}
+        return $count;
+    }
 }
-
-?>

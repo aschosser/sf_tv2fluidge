@@ -1,5 +1,5 @@
 <?php
-
+namespace Hansen\SfTv2fluidge\Controller;
 /***************************************************************
  *  Copyright notice
  *
@@ -27,120 +27,58 @@
 /**
  * TV Tv2fluidge Backend Controller
  */
-class Tx_SfTv2fluidge_Controller_Tv2fluidgeController extends Tx_Extbase_MVC_Controller_ActionController {
+class Tv2fluidgeController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController {
 
 	/**
 	 * UnreferencedElementHelper
 	 *
-	 * @var Tx_SfTv2fluidge_Service_UnreferencedElementHelper
+	 * @var \Hansen\SfTv2fluidge\Service\UnreferencedElementHelper
+     * @inject
 	 */
 	protected $unreferencedElementHelper;
 
-	/**
-	 * DI for UnreferencedElementHelper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_UnreferencedElementHelper $unreferencedElementHelper
-	 * @return void
-	 */
-	public function injectUnreferencedElementHelper(Tx_SfTv2fluidge_Service_UnreferencedElementHelper $unreferencedElementHelper) {
-		$this->unreferencedElementHelper = $unreferencedElementHelper;
-	}
 
 	/**
 	 * ReferenceElementHelper
 	 *
-	 * @var Tx_SfTv2fluidge_Service_ReferenceElementHelper
+	 * @var \Hansen\SfTv2fluidge\Service\ReferenceElementHelper
+     * @inject
 	 */
 	protected $referenceElementHelper;
 
 	/**
-	 * DI for ReferenceElementHelper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_ReferenceElementHelper $referenceElementHelper
-	 * @return void
-	 */
-	public function injectReferenceElementHelper(Tx_SfTv2fluidge_Service_ReferenceElementHelper $referenceElementHelper) {
-		$this->referenceElementHelper = $referenceElementHelper;
-	}
-
-	/**
 	 * MigrateFceHelper
 	 *
-	 * @var Tx_SfTv2fluidge_Service_MigrateFceHelper
+	 * @var \Hansen\SfTv2fluidge\Service\MigrateFceHelper
+     * @inject
 	 */
 	protected $migrateFceHelper;
 
 	/**
-	 * DI for MigrateFceHelper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_MigrateFceHelper $migrateFceHelper
-	 * @return void
-	 */
-	public function injectUpdateFceHelper(Tx_SfTv2fluidge_Service_MigrateFceHelper $migrateFceHelper) {
-		$this->migrateFceHelper = $migrateFceHelper;
-	}
-
-	/**
 	 * MigrateContentHelper
 	 *
-	 * @var Tx_SfTv2fluidge_Service_MigrateContentHelper
+	 * @var \Hansen\SfTv2fluidge\Service\MigrateContentHelper
+     * @inject
 	 */
 	protected $migrateContentHelper;
 
 	/**
-	 * DI for MigrateContentHelper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_MigrateContentHelper $migrateContentHelper
-	 * @return void
-	 */
-	public function injectContentFceHelper(Tx_SfTv2fluidge_Service_MigrateContentHelper $migrateContentHelper) {
-		$this->migrateContentHelper = $migrateContentHelper;
-	}
-
-	/**
-	 * @var Tx_SfTv2fluidge_Service_FixSortingHelper
+	 * @var \Hansen\SfTv2fluidge\Service\FixSortingHelper
+     * @inject
 	 */
 	protected $fixSortingHelper;
 
 	/**
-	 * DI for fix sorting helper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_FixSortingHelper $fixSortingHelper
-	 * @return void
-	 */
-	public function injectFixSortingHelper(Tx_SfTv2fluidge_Service_FixSortingHelper $fixSortingHelper) {
-		$this->fixSortingHelper = $fixSortingHelper;
-	}
-
-	/**
-	 * @var Tx_SfTv2fluidge_Service_SharedHelper
+	 * @var \Hansen\SfTv2fluidge\Service\SharedHelper
+     * @inject
 	 */
 	protected $sharedHelper;
 
 	/**
-	 * DI for shared helper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper
-	 * @return void
-	 */
-	public function injectSharedHelper(Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper) {
-		$this->sharedHelper = $sharedHelper;
-	}
-
-	/**
-	 * @var Tx_SfTv2fluidge_Service_ConvertMultilangContentHelper
+	 * @var \Hansen\SfTv2fluidge\Service\ConvertMultilangContentHelper
+     * @inject
 	 */
 	protected $convertMultilangContentHelper;
-
-	/**
-	 * DI for shared helper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_ConvertMultilangContentHelper $convertMultilangContentHelper
-	 * @return void
-	 */
-	public function injectConvertMultilangContentHelper(Tx_SfTv2fluidge_Service_ConvertMultilangContentHelper $convertMultilangContentHelper) {
-		$this->convertMultilangContentHelper = $convertMultilangContentHelper;
-	}
 
 	/**
 	 * Default index action for module

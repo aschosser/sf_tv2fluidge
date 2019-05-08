@@ -1,5 +1,5 @@
 <?php
-
+namespace Hansen\SfTv2fluidge\Service;
 /***************************************************************
  *  Copyright notice
  *
@@ -26,37 +26,19 @@
 /**
  * Helper class for handling unreferenced elements
  */
-class Tx_SfTv2fluidge_Service_UnreferencedElementHelper implements t3lib_Singleton {
+class UnreferencedElementHelper implements \TYPO3\CMS\Core\SingletonInterface {
 
 	/**
-	 * @var Tx_SfTv2fluidge_Service_SharedHelper
+	 * @var \Hansen\SfTv2fluidge\Service\SharedHelper
+     * @inject
 	 */
 	protected $sharedHelper;
 
-	/**
-	 * DI for shared helper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper
-	 * @return void
-	 */
-	public function injectSharedHelper(Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper) {
-		$this->sharedHelper = $sharedHelper;
-	}
-
     /**
-     * @var Tx_SfTv2fluidge_Service_LogHelper
+     * @var \Hansen\SfTv2fluidge\Service\LogHelper
+     * @inject
      */
     protected $logHelper;
-
-    /**
-     * DI for shared helper
-     *
-     * @param Tx_SfTv2fluidge_Service_LogHelper $logHelper
-     * @return void
-     */
-    public function injectLogHelper(Tx_SfTv2fluidge_Service_LogHelper $logHelper) {
-        $this->logHelper = $logHelper;
-    }
 
 	/**
 	 * Marks all unreferenced element records as deleted with the recursion level set in the extension setting
@@ -133,8 +115,8 @@ class Tx_SfTv2fluidge_Service_UnreferencedElementHelper implements t3lib_Singlet
 			'uid NOT IN (' . implode(',', $allReferencedElementsArr) . ')'.
             ' AND pid IN (' . implode(',', $pageIds) . ')' .
 			' AND t3ver_wsid='.intval($BE_USER->workspace).
-			t3lib_BEfunc::deleteClause('tt_content').
-			t3lib_BEfunc::versioningPlaceholderClause('tt_content'),
+			\TYPO3\CMS\Backend\Utility\BackendUtility::deleteClause('tt_content').
+			\TYPO3\CMS\Backend\Utility\BackendUtility::versioningPlaceholderClause('tt_content'),
 			'',
 			'sorting'
 		);
@@ -159,6 +141,7 @@ class Tx_SfTv2fluidge_Service_UnreferencedElementHelper implements t3lib_Singlet
 
 		$this->logHelper->logMessage('===== ' . __CLASS__ . ' - ' . __FUNCTION__ . ' =====');
 		$this->logHelper->logMessage($GLOBALS['TYPO3_DB']->debug_lastBuiltQuery);
+
 	}
 
 	/**
@@ -169,7 +152,7 @@ class Tx_SfTv2fluidge_Service_UnreferencedElementHelper implements t3lib_Singlet
 	 */
 	private function markNegativeColPos($uids) {
 		$where = 'uid IN (' . implode(',', $uids) . ')';
-		$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tt_content', $where, array('colPos' => -2, 'tstamp' => time()));
+		$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tt_content', $where, array('colPos' => -1, 'tstamp' => time()));
 
 		$this->logHelper->logMessage('===== ' . __CLASS__ . ' - ' . __FUNCTION__ . ' =====');
 		$this->logHelper->logMessage($GLOBALS['TYPO3_DB']->debug_lastBuiltQuery);

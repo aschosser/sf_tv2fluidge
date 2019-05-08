@@ -1,5 +1,5 @@
 <?php
-
+namespace Hansen\SfTv2fluidge\Service;
 /***************************************************************
  *  Copyright notice
  *
@@ -26,15 +26,17 @@
 /**
  * Helper class for handling unreferenced elements
  */
-class Tx_SfTv2fluidge_Service_ReferenceElementHelper implements t3lib_Singleton {
+class ReferenceElementHelper implements \TYPO3\CMS\Core\SingletonInterface {
 
 	/**
-	 * @var Tx_SfTv2fluidge_Service_SharedHelper
+	 * @var \Hansen\SfTv2fluidge\Service\SharedHelper
+     * @inject
 	 */
 	protected $sharedHelper;
 
 	/**
-	 * @var t3lib_refindex
+	 * @var \TYPO3\CMS\Core\Database\ReferenceIndex
+     * @inject
 	 */
 	protected $refIndex;
 
@@ -55,26 +57,6 @@ class Tx_SfTv2fluidge_Service_ReferenceElementHelper implements t3lib_Singleton 
      * @var array
      */
     protected $conversionCount = array();
-
-    /**
-	 * DI for shared helper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper
-	 * @return void
-	 */
-	public function injectSharedHelper(Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper) {
-		$this->sharedHelper = $sharedHelper;
-	}
-
-	/**
-	 * DI for t3lib_refindex
-	 *
-	 * @param t3lib_refindex t3lib_refindex
-	 * @return void
-	 */
-	public function injectRefIndex(t3lib_refindex $refIndex) {
-		$this->refIndex = $refIndex;
-	}
 
 	/**
 	 * @param array $formdata
@@ -124,7 +106,7 @@ class Tx_SfTv2fluidge_Service_ReferenceElementHelper implements t3lib_Singleton 
 
             // Cycle through each field
             foreach ($fields as $field => $contentUidString) {
-                $contentUids = t3lib_div::trimExplode(',', $contentUidString);
+                $contentUids = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $contentUidString);
                 $position = 1;
                 foreach ($contentUids as $contentUid) {
                     $contentUid = (int)$contentUid;
@@ -352,7 +334,7 @@ class Tx_SfTv2fluidge_Service_ReferenceElementHelper implements t3lib_Singleton 
 		$GLOBALS['TYPO3_DB']->exec_DELETEquery(
 			'tt_content',
 			'(l18n_parent =' . $contentUid . ')' .
-			t3lib_BEfunc::deleteClause('tt_content')
+			\TYPO3\CMS\Backend\Utility\BackendUtility::deleteClause('tt_content')
 		);
 	}
 
@@ -386,7 +368,7 @@ class Tx_SfTv2fluidge_Service_ReferenceElementHelper implements t3lib_Singleton 
 		$GLOBALS['TYPO3_DB']->exec_UPDATEquery(
 			'tt_content',
 			'(l18n_parent =' . $contentUid . ')' .
-			t3lib_BEfunc::deleteClause('tt_content'),
+			\TYPO3\CMS\Backend\Utility\BackendUtility::deleteClause('tt_content'),
 			array(
 				'CType'   => 'shortcut',
 				'records' => 'tt_content_' . $targetUid,
@@ -414,7 +396,7 @@ class Tx_SfTv2fluidge_Service_ReferenceElementHelper implements t3lib_Singleton 
 						'tt_content',
 						'(l18n_parent = ' . $contentUid . ')' .
 						' AND (sys_language_uid = '  . $translationTargetSysLanguageUid . ')' .
-						t3lib_BEfunc::deleteClause('tt_content'),
+						\TYPO3\CMS\Backend\Utility\BackendUtility::deleteClause('tt_content'),
 						array(
 							'CType'   => 'shortcut',
 							'records' => 'tt_content_' . $translationTargetUid,

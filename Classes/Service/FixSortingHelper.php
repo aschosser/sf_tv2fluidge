@@ -1,5 +1,5 @@
 <?php
-
+namespace Hansen\SfTv2fluidge\Service;
 /***************************************************************
  *  Copyright notice
  *
@@ -26,39 +26,21 @@
 /**
  * Class with methods for fixing the sorting of translated elements
  */
-class Tx_SfTv2fluidge_Service_FixSortingHelper implements t3lib_Singleton {
+class FixSortingHelper implements \TYPO3\CMS\Core\SingletonInterface {
 
 	const SORTING_OFFSET = 25;
 
 	/**
-	 * @var Tx_SfTv2fluidge_Service_SharedHelper
+	 * @var \Hansen\SfTv2fluidge\Service\SharedHelper
+     * @inject
 	 */
 	protected $sharedHelper;
 
 	/**
-	 * @var t3lib_refindex
+	 * @var \TYPO3\CMS\Core\Database\ReferenceIndex
+     * @inject
 	 */
 	protected $refIndex;
-
-	/**
-	 * DI for shared helper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper
-	 * @return void
-	 */
-	public function injectSharedHelper(Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper) {
-		$this->sharedHelper = $sharedHelper;
-	}
-
-	/**
-	 * DI for t3lib_refindex
-	 *
-	 * @param t3lib_refindex t3lib_refindex
-	 * @return void
-	 */
-	public function injectRefIndex(t3lib_refindex $refIndex) {
-		$this->refIndex = $refIndex;
-	}
 
 	/**
 	 * Fixes the sorting of all translated content elements for the given page uid
@@ -108,7 +90,7 @@ class Tx_SfTv2fluidge_Service_FixSortingHelper implements t3lib_Singleton {
 
 				$contentElementPageUid = (int)$contentElement['pid'];
 				if ($contentElementPageUid === $pageUid) {
-					$contentTvFlexform = $contentElement['tx_templavoila_flex'];
+					$contentTvFlexform = $contentElement['tx_templavoilaplus_flex'];
 					$contentElementUid = (int)$contentElement['uid'];
 					if ($contentElementUid > 0) {
 						$sorting += self::SORTING_OFFSET;
@@ -150,7 +132,7 @@ class Tx_SfTv2fluidge_Service_FixSortingHelper implements t3lib_Singleton {
 	protected function getContentElementUids($contentArray) {
 		$contentElementUidValues = array();
 		foreach ($contentArray as $contentElementList) {
-			$fieldContentUidValues = t3lib_div::trimExplode(',', $contentElementList, TRUE);
+			$fieldContentUidValues = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $contentElementList, TRUE);
 			if (is_array($fieldContentUidValues)) {
 				foreach ($fieldContentUidValues as $fieldContentUid) {
 					$fieldContentUid = (int)$fieldContentUid;
@@ -183,7 +165,7 @@ class Tx_SfTv2fluidge_Service_FixSortingHelper implements t3lib_Singleton {
 			$table = 'tt_content';
 			$where = '(pid=' . (int)$pageUid . ')' .
 				$notInWhere .
-				t3lib_BEfunc::deleteClause('tt_content');
+				\TYPO3\CMS\Backend\Utility\BackendUtility::deleteClause('tt_content');
 
 			$contentElements = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows($fields, $table, $where, '', 'sorting ASC, sys_language_uid ASC, uid ASC', '');
 		}

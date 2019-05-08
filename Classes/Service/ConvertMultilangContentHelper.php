@@ -1,5 +1,5 @@
 <?php
-
+namespace Hansen\SfTv2fluidge\Service;
 /***************************************************************
  *  Copyright notice
  *
@@ -26,15 +26,17 @@
 /**
  * Class with methods used for mulitlingual content conversion
  */
-class Tx_SfTv2fluidge_Service_ConvertMultilangContentHelper implements t3lib_Singleton {
+class ConvertMultilangContentHelper implements \TYPO3\CMS\Core\SingletonInterface {
 
 	/**
-	 * @var Tx_SfTv2fluidge_Service_SharedHelper
+	 * @var \Hansen\SfTv2fluidge\Service\SharedHelper
+     * @inject
 	 */
 	protected $sharedHelper;
 
 	/**
-	 * @var t3lib_refindex
+	 * @var \TYPO3\CMS\Core\Database\ReferenceIndex
+     * @inject
 	 */
 	protected $refIndex;
 
@@ -58,25 +60,6 @@ class Tx_SfTv2fluidge_Service_ConvertMultilangContentHelper implements t3lib_Sin
 	 */
 	protected $langIsoCodes = array();
 
-	/**
-	 * DI for shared helper
-	 *
-	 * @param Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper
-	 * @return void
-	 */
-	public function injectSharedHelper(Tx_SfTv2fluidge_Service_SharedHelper $sharedHelper) {
-		$this->sharedHelper = $sharedHelper;
-	}
-
-	/**
-	 * DI for t3lib_refindex
-	 *
-	 * @param t3lib_refindex t3lib_refindex
-	 * @return void
-	 */
-	public function injectRefIndex(t3lib_refindex $refIndex) {
-		$this->refIndex = $refIndex;
-	}
 
 	/**
 	 * @param array $formdata
@@ -122,9 +105,9 @@ class Tx_SfTv2fluidge_Service_ConvertMultilangContentHelper implements t3lib_Sin
 			$origContentElement['sys_language_uid'] = 0;
 			$origUid = $origContentElement['uid'];
 			unset ($origContentElement['uid']);
-			$tvTemplateUid = (int)$origContentElement['tx_templavoila_to'];
-			if (!empty($origContentElement['tx_templavoila_flex'])) {
-				$origContentElement['pi_flexform'] = $origContentElement['tx_templavoila_flex'];
+			$tvTemplateUid = (int)$origContentElement['tx_templavoilaplus_to'];
+			if (!empty($origContentElement['tx_templavoilaplus_flex'])) {
+				$origContentElement['pi_flexform'] = $origContentElement['tx_templavoilaplus_flex'];
 			}
 			$origContentElement['pi_flexform'] = $this->sharedHelper->cleanFlexform($origContentElement['pi_flexform'], $tvTemplateUid);
 			$GLOBALS['TYPO3_DB']->exec_UPDATEquery('tt_content', 'uid=' . $origUid, $origContentElement);
@@ -146,7 +129,7 @@ class Tx_SfTv2fluidge_Service_ConvertMultilangContentHelper implements t3lib_Sin
 		if ($this->insertRecordsConversionOption !== 'keep') {
 			foreach ($shortcutElements as $shortcutElement) {
 				if (!empty($shortcutElement['records']) && ($shortcutElement['CType'] === 'shortcut')) {
-					$records = t3lib_div::trimExplode(',', $shortcutElement['records'], TRUE);
+					$records = \TYPO3\CMS\Core\Utility\GeneralUtility::trimExplode(',', $shortcutElement['records'], TRUE);
 					$recordShortcutString = 'tt_content_' . (int)$contentElementUid;
 					$isShortcutRecord = FALSE;
 					foreach ($records as &$record) {
@@ -215,12 +198,12 @@ class Tx_SfTv2fluidge_Service_ConvertMultilangContentHelper implements t3lib_Sin
 		$contentElement['t3_origuid'] = (int)$origUid;
 		$contentElement['l18n_parent'] = (int)$origUid;
 
-		$tvTemplateUid = (int)$contentElement['tx_templavoila_to'];
-		if (!empty($contentElement['tx_templavoila_flex'])) {
-			$contentElement['pi_flexform'] = $contentElement['tx_templavoila_flex'];
+		$tvTemplateUid = (int)$contentElement['tx_templavoilaplus_to'];
+		if (!empty($contentElement['tx_templavoilaplus_flex'])) {
+			$contentElement['pi_flexform'] = $contentElement['tx_templavoilaplus_flex'];
 		}
 		if (($this->flexformConversionOption !== 'exclude')) {
-			if (t3lib_extMgm::isLoaded('static_info_tables')) {
+			if (\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::isLoaded('static_info_tables')) {
 				$langUid = (int)$contentElement['sys_language_uid'];
 				if ($langUid > 0) {
 					$forceLanguage = ($this->flexformConversionOption === 'forceLanguage');

@@ -1,5 +1,5 @@
 <?php
-
+namespace Hansen\SfTv2fluidge\Service;
 /***************************************************************
  *  Copyright notice
  *
@@ -26,7 +26,7 @@
 /**
  * Helper class for handling logs
  */
-class Tx_SfTv2fluidge_Service_LogHelper implements t3lib_Singleton {
+class LogHelper implements \TYPO3\CMS\Core\SingletonInterface {
 
     /**
      * @var array

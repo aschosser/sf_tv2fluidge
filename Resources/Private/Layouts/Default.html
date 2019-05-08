@@ -1,5 +1,4 @@
-<f:be.container
-        addCssFile="{f:uri.resource(path:'Css/sf_tv2fluidge.css')}">
+<f:be.container includeCssFiles="{0: '{f:uri.resource(path: \'Css/sf_tv2fluidge.css\')}'}">
     <div class="typo3-fullDoc">
         <div id="typo3-docheader">
             <div id="typo3-docheader-row1">
@@ -21,7 +20,7 @@
         </div>
         <div id="typo3-docbody">
             <div id="typo3-inner-docbody">
-                <f:flashMessages class="tx-extbase-flash-message" />
+                <f:flashMessages />
                 <div id="tv2fluidge-content">
                     <f:render section="content" />
                 </div>
