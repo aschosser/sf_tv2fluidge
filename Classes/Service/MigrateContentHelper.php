@@ -96,6 +96,7 @@ class MigrateContentHelper implements \TYPO3\CMS\Core\SingletonInterface
      */
     public function getAllBeLayouts()
     {
+        // Get all backend layouts stored in database.
         $fields = 'uid, title';
         $table = 'backend_layout';
         $where = 'deleted=0';
@@ -105,6 +106,17 @@ class MigrateContentHelper implements \TYPO3\CMS\Core\SingletonInterface
         $beLayouts = array();
         foreach ($res as $ge) {
             $beLayouts[$ge['uid']] = $ge['title'];
+        }
+
+        // Get all backend layouts stored in file system.
+        $startRootPage = $this->sharedHelper->getConversionRootPid();
+        $pageTSConfig = \TYPO3\CMS\Backend\Utility\BackendUtility::getModTSconfig(
+            $startRootPage,
+            'mod.web_layout.BackendLayouts'
+        );
+        foreach ($pageTSConfig['properties'] as $blKey => $bl) {
+            $blKey = str_replace('.', '', $blKey);
+            $beLayouts[$blKey] = $bl['title'];
         }
 
         return $beLayouts;
