@@ -320,7 +320,19 @@ class SharedHelper implements \TYPO3\CMS\Core\SingletonInterface
     public function getBeLayoutContentCols($uidBeLayout)
     {
         $beLayoutRecord = $this->getBeLayout($uidBeLayout);
-        return $this->getContentColsFromTs($beLayoutRecord['config']);
+
+        if ($beLayoutRecord) {
+            return $this->getContentColsFromTs($beLayoutRecord['config']);
+        } else {
+            $startRootPage = $this->getConversionRootPid();
+            $beLayoutRecord = \TYPO3\CMS\Backend\Utility\BackendUtility::getModTSconfig(
+                $startRootPage,
+                'mod.web_layout.BackendLayouts.' . $uidBeLayout
+            );
+            return $this->getContentColsFromPageTs(
+                array('config.' => $beLayoutRecord['properties']['config.']['backend_layout.'])
+            );
+        }
     }
 
     /**
