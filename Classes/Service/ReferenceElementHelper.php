@@ -36,6 +36,12 @@ class ReferenceElementHelper implements \TYPO3\CMS\Core\SingletonInterface
     protected $sharedHelper;
 
     /**
+     * @var \Hansen\SfTv2fluidge\Service\LogHelper
+     * @inject
+     */
+    protected $logHelper;
+
+    /**
      * @var \TYPO3\CMS\Core\Database\ReferenceIndex
      * @inject
      */
@@ -313,6 +319,8 @@ class ReferenceElementHelper implements \TYPO3\CMS\Core\SingletonInterface
                 'records' => 'tt_content_' . $targetUid,
             )
         );
+        $this->logHelper->logMessage('===== ' . __CLASS__ . ' - ' . __FUNCTION__ . ' =====');
+        $this->logHelper->logMessage('Update ' . $contentUid . ' as shortcut to ' . $targetUid);
     }
 
     /**
