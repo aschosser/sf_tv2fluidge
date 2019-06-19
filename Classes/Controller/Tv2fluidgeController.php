@@ -75,6 +75,12 @@ class Tv2fluidgeController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContr
     protected $sharedHelper;
 
     /**
+     * @var \Hansen\SfTv2fluidge\Service\LogHelper
+     * @inject
+     */
+    protected $logHelper;
+
+    /**
      * @var \Hansen\SfTv2fluidge\Service\ConvertMultilangContentHelper
      * @inject
      */
@@ -168,6 +174,9 @@ class Tv2fluidgeController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContr
      */
     public function indexMigrateFceAction($formdata = null)
     {
+        $this->logHelper->logMessage('===== ' . __CLASS__ . ' - ' . __FUNCTION__ . ' =====');
+        $this->logHelper->logMessage('Starting ...');
+
         if ($this->sharedHelper->getTemplavoilaStaticDsIsEnabled()) {
             $allFce = $this->migrateFceHelper->getAllFileFce();
         } else {
@@ -212,6 +221,9 @@ class Tv2fluidgeController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContr
         $this->view->assign('allFce', $allFce);
         $this->view->assign('allGe', $allGe);
         $this->view->assign('formdata', $formdata);
+
+        $this->logHelper->logMessage('===== ' . __CLASS__ . ' - ' . __FUNCTION__ . ' =====');
+        $this->logHelper->logMessage('Finished (' . $fceContentCols . ' records)');
 
         // Redirect to migrateContentAction when submit button pressed
         if (isset($formdata['startAction'])) {

@@ -81,6 +81,9 @@ class ReferenceElementHelper implements \TYPO3\CMS\Core\SingletonInterface
      */
     public function convertReferenceElements()
     {
+        $this->logHelper->logMessage('===== ' . __CLASS__ . ' - ' . __FUNCTION__ . ' =====');
+        $this->logHelper->logMessage('Starting ...');
+
         $GLOBALS['TCA']['tt_content']['ctrl']['hideAtCopy'] = 0;
         $GLOBALS['TCA']['tt_content']['ctrl']['prependAtCopy'] = 0;
 
@@ -92,6 +95,9 @@ class ReferenceElementHelper implements \TYPO3\CMS\Core\SingletonInterface
             $tvContentArray = $this->sharedHelper->getTvContentArrayByLanguageAndFieldForPage($pid);
             $numRecords += $this->convertTvContentArrayToReferenceElements($tvContentArray, $pid);
         }
+
+        $this->logHelper->logMessage('===== ' . __CLASS__ . ' - ' . __FUNCTION__ . ' =====');
+        $this->logHelper->logMessage('Finished. Got ' . $numRecords . ' references.');
 
         return $numRecords;
     }
