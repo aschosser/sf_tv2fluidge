@@ -223,7 +223,7 @@ class Tv2fluidgeController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionContr
         $this->view->assign('formdata', $formdata);
 
         $this->logHelper->logMessage('===== ' . __CLASS__ . ' - ' . __FUNCTION__ . ' =====');
-        $this->logHelper->logMessage('Finished (' . $fceContentCols . ' records)');
+        $this->logHelper->logMessage('Finished (' . count($fceContentCols) . ' records)');
 
         // Redirect to migrateContentAction when submit button pressed
         if (isset($formdata['startAction'])) {
